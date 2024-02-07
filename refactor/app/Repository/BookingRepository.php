@@ -92,11 +92,11 @@ class BookingRepository extends BaseRepository
     public function getUsersJobsHistory($user_id, Request $request)
     {
         $page = $request->get('page');
+        $pagenum = "1";
         if (isset($page)) {
             $pagenum = $page;
-        } else {
-            $pagenum = "1";
         }
+
         $cuser = User::find($user_id);
         $usertype = '';
         $emergencyJobs = array();
@@ -211,8 +211,7 @@ class BookingRepository extends BaseRepository
             }
             if (in_array('normal', $data['job_for'])) {
                 $data['certified'] = 'normal';
-            }
-            else if (in_array('certified', $data['job_for'])) {
+            } else if (in_array('certified', $data['job_for'])) {
                 $data['certified'] = 'yes';
             } else if (in_array('certified_in_law', $data['job_for'])) {
                 $data['certified'] = 'law';
@@ -221,13 +220,9 @@ class BookingRepository extends BaseRepository
             }
             if (in_array('normal', $data['job_for']) && in_array('certified', $data['job_for'])) {
                 $data['certified'] = 'both';
-            }
-            else if(in_array('normal', $data['job_for']) && in_array('certified_in_law', $data['job_for']))
-            {
+            } else if(in_array('normal', $data['job_for']) && in_array('certified_in_law', $data['job_for'])){
                 $data['certified'] = 'n_law';
-            }
-            else if(in_array('normal', $data['job_for']) && in_array('certified_in_helth', $data['job_for']))
-            {
+            } else if(in_array('normal', $data['job_for']) && in_array('certified_in_helth', $data['job_for'])){
                 $data['certified'] = 'n_health';
             }
             if ($consumer_type == 'rwsconsumer')
@@ -1428,8 +1423,6 @@ class BookingRepository extends BaseRepository
     /*Function to accept the job with the job id*/
     public function acceptJobWithId($job_id, $cuser)
     {
-        $adminemail = config('app.admin_email');
-        $adminSenderEmail = config('app.admin_sender_email');
         $job = Job::findOrFail($job_id);
         $response = array();
 
@@ -1662,11 +1655,6 @@ class BookingRepository extends BaseRepository
         $completeddate = date('Y-m-d H:i:s');
         $jobid = $post_data["job_id"];
         $job_detail = Job::with('translatorJobRel')->find($jobid);
-        $duedate = $job_detail->due;
-        $start = date_create($duedate);
-        $end = date_create($completeddate);
-        $diff = date_diff($end, $start);
-        $interval = $diff->h . ':' . $diff->i . ':' . $diff->s;
         $job = $job_detail;
         $job->end_at = date('Y-m-d H:i:s');
         $job->status = 'not_carried_out_customer';
@@ -1907,8 +1895,6 @@ class BookingRepository extends BaseRepository
         $all_translators = DB::table('users')->where('user_type', '2')->lists('email');
 
         $cuser = Auth::user();
-        $consumer_type = TeHelper::getUsermeta($cuser->id, 'consumer_type');
-
 
         if ($cuser && $cuser->is('superadmin')) {
             $allJobs = DB::table('jobs')
@@ -1994,8 +1980,6 @@ class BookingRepository extends BaseRepository
         $all_translators = DB::table('users')->where('user_type', '2')->lists('email');
 
         $cuser = Auth::user();
-        $consumer_type = TeHelper::getUsermeta($cuser->id, 'consumer_type');
-
 
         if ($cuser && ($cuser->is('superadmin') || $cuser->is('admin'))) {
             $allJobs = DB::table('jobs')
